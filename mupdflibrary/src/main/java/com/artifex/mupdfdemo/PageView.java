@@ -20,13 +20,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 class PatchInfo {
+
     public BitmapHolder bmh;
     public Bitmap bm;
     public Point patchViewSize;
     public Rect patchArea;
     public boolean completeRedraw;
 
-    public PatchInfo(Point aPatchViewSize, Rect aPatchArea, BitmapHolder aBmh, boolean aCompleteRedraw) {
+    public PatchInfo(Point aPatchViewSize, Rect aPatchArea, BitmapHolder aBmh,
+            boolean aCompleteRedraw) {
         bmh = aBmh;
         bm = null;
         patchViewSize = aPatchViewSize;
@@ -49,6 +51,7 @@ class OpaqueImageView extends ImageView {
 }
 
 interface TextProcessor {
+
     void onStartLine();
 
     void onWord(TextWord word);
@@ -57,6 +60,7 @@ interface TextProcessor {
 }
 
 class TextSelector {
+
     final private TextWord[][] mText;
     final private RectF mSelectBox;
 
@@ -66,13 +70,16 @@ class TextSelector {
     }
 
     public void select(TextProcessor tp) {
-        if (mText == null || mSelectBox == null)
+        if (mText == null || mSelectBox == null) {
             return;
+        }
 
         ArrayList<TextWord[]> lines = new ArrayList<TextWord[]>();
-        for (TextWord[] line : mText)
-            if (line[0].bottom > mSelectBox.top && line[0].top < mSelectBox.bottom)
+        for (TextWord[] line : mText) {
+            if (line[0].bottom > mSelectBox.top && line[0].top < mSelectBox.bottom) {
                 lines.add(line);
+            }
+        }
 
         Iterator<TextWord[]> it = lines.iterator();
         while (it.hasNext()) {
@@ -93,9 +100,11 @@ class TextSelector {
 
             tp.onStartLine();
 
-            for (TextWord word : line)
-                if (word.right > start && word.left < end)
+            for (TextWord word : line) {
+                if (word.right > start && word.left < end) {
                     tp.onWord(word);
+                }
+            }
 
             tp.onEndLine();
         }
@@ -103,6 +112,7 @@ class TextSelector {
 }
 
 public abstract class PageView extends ViewGroup {
+
     private static final int HIGHLIGHT_COLOR = 0x802572AC;
     private static final int LINK_COLOR = 0x80AC7225;
     private static final int BOX_COLOR = 0xFF4444FF;
@@ -137,7 +147,7 @@ public abstract class PageView extends ViewGroup {
     private boolean mIsBlank;
     private boolean mHighlightLinks;
 
-    private ProgressBar mBusyIndicator;
+    //  private ProgressBar mBusyIndicator;
     private final Handler mHandler = new Handler();
 
     public PageView(Context c, Point parentSize) {
@@ -149,9 +159,11 @@ public abstract class PageView extends ViewGroup {
         mPatchBmh = new BitmapHolder();
     }
 
-    protected abstract Bitmap drawPage(int sizeX, int sizeY, int patchX, int patchY, int patchWidth, int patchHeight);
+    protected abstract Bitmap drawPage(int sizeX, int sizeY, int patchX, int patchY, int patchWidth,
+            int patchHeight);
 
-    protected abstract Bitmap updatePage(BitmapHolder h, int sizeX, int sizeY, int patchX, int patchY, int patchWidth, int patchHeight);
+    protected abstract Bitmap updatePage(BitmapHolder h, int sizeX, int sizeY, int patchX,
+            int patchY, int patchWidth, int patchHeight);
 
     protected abstract LinkInfo[] getLinkInfo();
 
@@ -184,8 +196,9 @@ public abstract class PageView extends ViewGroup {
         mIsBlank = true;
         mPageNumber = 0;
 
-        if (mSize == null)
+        if (mSize == null) {
             mSize = mParentSize;
+        }
 
         if (mEntire != null) {
             mEntire.setImageBitmap(null);
@@ -210,22 +223,22 @@ public abstract class PageView extends ViewGroup {
     public void releaseResources() {
         reinit();
 
-        if (mBusyIndicator != null) {
+     /*   if (mBusyIndicator != null) {
             removeView(mBusyIndicator);
             mBusyIndicator = null;
-        }
+        }*/
     }
 
     public void blank(int page) {
         reinit();
         mPageNumber = page;
-
+/*
         if (mBusyIndicator == null) {
             mBusyIndicator = new ProgressBar(mContext);
             mBusyIndicator.setIndeterminate(true);
             mBusyIndicator.setBackgroundResource(R.drawable.busy);
             addView(mBusyIndicator);
-        }
+        }*/
 
         setBackgroundColor(BACKGROUND_COLOR);
     }
@@ -239,8 +252,9 @@ public abstract class PageView extends ViewGroup {
 
         mIsBlank = false;
         // Highlights may be missing because mIsBlank was true on last draw
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.invalidate();
+        }
 
         mPageNumber = page;
         if (mEntire == null) {
@@ -282,7 +296,7 @@ public abstract class PageView extends ViewGroup {
                 setBackgroundColor(BACKGROUND_COLOR);
                 mEntire.setImageBitmap(null);
                 mEntireBmh.setBm(null);
-
+/*
                 if (mBusyIndicator == null) {
                     mBusyIndicator = new ProgressBar(mContext);
                     mBusyIndicator.setIndeterminate(true);
@@ -296,11 +310,12 @@ public abstract class PageView extends ViewGroup {
                         }
                     }, PROGRESS_DIALOG_DELAY);
                 }
+                */
             }
 
             protected void onPostExecute(Bitmap bm) {
-                removeView(mBusyIndicator);
-                mBusyIndicator = null;
+                //    removeView(mBusyIndicator);
+                //    mBusyIndicator = null;
                 mEntire.setImageBitmap(bm);
                 mEntireBmh.setBm(bm);
                 setBackgroundColor(Color.TRANSPARENT);
@@ -321,18 +336,20 @@ public abstract class PageView extends ViewGroup {
 
                     if (!mIsBlank && mSearchBoxes != null) {
                         paint.setColor(HIGHLIGHT_COLOR);
-                        for (RectF rect : mSearchBoxes)
+                        for (RectF rect : mSearchBoxes) {
                             canvas.drawRect(rect.left * scale, rect.top * scale,
                                     rect.right * scale, rect.bottom * scale,
                                     paint);
+                        }
                     }
 
                     if (!mIsBlank && mLinks != null && mHighlightLinks) {
                         paint.setColor(LINK_COLOR);
-                        for (LinkInfo link : mLinks)
+                        for (LinkInfo link : mLinks) {
                             canvas.drawRect(link.rect.left * scale, link.rect.top * scale,
                                     link.rect.right * scale, link.rect.bottom * scale,
                                     paint);
+                        }
                     }
 
                     if (mSelectBox != null && mText != null) {
@@ -349,8 +366,10 @@ public abstract class PageView extends ViewGroup {
                             }
 
                             public void onEndLine() {
-                                if (!rect.isEmpty())
-                                    canvas.drawRect(rect.left * scale, rect.top * scale, rect.right * scale, rect.bottom * scale, paint);
+                                if (!rect.isEmpty()) {
+                                    canvas.drawRect(rect.left * scale, rect.top * scale,
+                                            rect.right * scale, rect.bottom * scale, paint);
+                                }
                             }
                         });
                     }
@@ -358,7 +377,8 @@ public abstract class PageView extends ViewGroup {
                     if (mItemSelectBox != null) {
                         paint.setStyle(Paint.Style.STROKE);
                         paint.setColor(BOX_COLOR);
-                        canvas.drawRect(mItemSelectBox.left * scale, mItemSelectBox.top * scale, mItemSelectBox.right * scale, mItemSelectBox.bottom * scale, paint);
+                        canvas.drawRect(mItemSelectBox.left * scale, mItemSelectBox.top * scale,
+                                mItemSelectBox.right * scale, mItemSelectBox.bottom * scale, paint);
                     }
 
                     if (mDrawing != null) {
@@ -406,14 +426,16 @@ public abstract class PageView extends ViewGroup {
 
     public void setSearchBoxes(RectF searchBoxes[]) {
         mSearchBoxes = searchBoxes;
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.invalidate();
+        }
     }
 
     public void setLinkHighlighting(boolean f) {
         mHighlightLinks = f;
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.invalidate();
+        }
     }
 
     public void deselectText() {
@@ -428,10 +450,11 @@ public abstract class PageView extends ViewGroup {
         float docRelX1 = (x1 - getLeft()) / scale;
         float docRelY1 = (y1 - getTop()) / scale;
         // Order on Y but maintain the point grouping
-        if (docRelY0 <= docRelY1)
+        if (docRelY0 <= docRelY1) {
             mSelectBox = new RectF(docRelX0, docRelY0, docRelX1, docRelY1);
-        else
+        } else {
             mSelectBox = new RectF(docRelX1, docRelY1, docRelX0, docRelY0);
+        }
 
         mSearchView.invalidate();
 
@@ -457,8 +480,9 @@ public abstract class PageView extends ViewGroup {
         float scale = mSourceScale * (float) getWidth() / (float) mSize.x;
         float docRelX = (x - getLeft()) / scale;
         float docRelY = (y - getTop()) / scale;
-        if (mDrawing == null)
+        if (mDrawing == null) {
             mDrawing = new ArrayList<ArrayList<PointF>>();
+        }
 
         ArrayList<PointF> arc = new ArrayList<PointF>();
         arc.add(new PointF(docRelX, docRelY));
@@ -483,8 +507,9 @@ public abstract class PageView extends ViewGroup {
     }
 
     protected PointF[][] getDraw() {
-        if (mDrawing == null)
+        if (mDrawing == null) {
             return null;
+        }
 
         PointF[][] path = new PointF[mDrawing.size()][];
 
@@ -502,8 +527,9 @@ public abstract class PageView extends ViewGroup {
 
     public void setItemSelectBox(RectF rect) {
         mItemSelectBox = rect;
-        if (mSearchView != null)
+        if (mSearchView != null) {
             mSearchView.invalidate();
+        }
     }
 
     @Override
@@ -525,11 +551,11 @@ public abstract class PageView extends ViewGroup {
         }
 
         setMeasuredDimension(x, y);
-
+/*
         if (mBusyIndicator != null) {
             int limit = Math.min(mParentSize.x, mParentSize.y) / 2;
             mBusyIndicator.measure(MeasureSpec.AT_MOST | limit, MeasureSpec.AT_MOST | limit);
-        }
+        }*/
     }
 
     @Override
@@ -558,13 +584,14 @@ public abstract class PageView extends ViewGroup {
                 mPatch.layout(mPatchArea.left, mPatchArea.top, mPatchArea.right, mPatchArea.bottom);
             }
         }
-
+/*
         if (mBusyIndicator != null) {
             int bw = mBusyIndicator.getMeasuredWidth();
             int bh = mBusyIndicator.getMeasuredHeight();
 
             mBusyIndicator.layout((w - bw) / 2, (h - bh) / 2, (w + bw) / 2, (h + bh) / 2);
         }
+        */
     }
 
     public void addHq(boolean update) {
@@ -575,17 +602,20 @@ public abstract class PageView extends ViewGroup {
             Rect patchArea = new Rect(0, 0, mParentSize.x, mParentSize.y);
 
             // Intersect and test that there is an intersection
-            if (!patchArea.intersect(viewArea))
+            if (!patchArea.intersect(viewArea)) {
                 return;
+            }
 
             // Offset patch area to be relative to the view top left
             patchArea.offset(-viewArea.left, -viewArea.top);
 
-            boolean area_unchanged = patchArea.equals(mPatchArea) && patchViewSize.equals(mPatchViewSize);
+            boolean area_unchanged = patchArea.equals(mPatchArea) && patchViewSize
+                    .equals(mPatchViewSize);
 
             // If being asked for the same area as last time and not because of an update then nothing to do
-            if (area_unchanged && !update)
+            if (area_unchanged && !update) {
                 return;
+            }
 
             boolean completeRedraw = !(area_unchanged && update);
 
@@ -639,7 +669,8 @@ public abstract class PageView extends ViewGroup {
                         //requestLayout();
                         // Calling requestLayout here doesn't lead to a later call to layout. No idea
                         // why, but apparently others have run into the problem.
-                        mPatch.layout(mPatchArea.left, mPatchArea.top, mPatchArea.right, mPatchArea.bottom);
+                        mPatch.layout(mPatchArea.left, mPatchArea.top, mPatchArea.right,
+                                mPatchArea.bottom);
                         invalidate();
                     }
                 }
